@@ -14,17 +14,18 @@ http://web.archive.org/web/20110514095512/http://mirror.facebook.net/facebook/xh
 # xhprof's files, e.g. /usr/share/php52-xhprof/ in Ubuntu for old PHP5.2
 define('XHPROF_ROOT', '/usr/share/webapps/xhprof');
 define('XHPROF_DISPLAY', false);
+define('XHPROF_COOKIENAME', 'XHPROF_PROFILE');
 
-session_name('PHPSESSIONDEBUGID');
-session_start();
-
+# Rather than a session, since I only need to store one flag value, I am using a cookie.
 if (array_key_exists('profile', $_GET)) {
-  $_SESSION['profile'] = true;
+  setcookie('XHPROF_PROFILE', 1);
+  $_COOKIE[XHPROF_COOKIENAME] = 1; # Set the value of the cookie in this request already.
 } elseif (array_key_exists('noprofile', $_GET)) {
-  $_SESSION['profile'] = false;
+  setcookie('XHPROF_PROFILE', ''); # Delete the cookie
+  unset($_COOKIE[XHPROF_COOKIENAME]); # Unset hte cookie in this request already.
 }
 
-if (isset($_SESSION['profile']) && $_SESSION['profile']) {
+if (isset($_COOKIE[XHPROF_COOKIENAME]) && $_COOKIE[XHPROF_COOKIENAME]) {
   # Start profiling.
   # Add XHPROF_FLAGS_NO_BUILTINS to not profile builtin functions.
   xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY,
@@ -67,7 +68,5 @@ EOH;
   # BUG: other shutdown functions registered after this won't be profiled.
   register_shutdown_function('xhprof_prepend_finalize');
 }
-
-session_write_close();
 
 ?>
