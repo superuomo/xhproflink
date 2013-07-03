@@ -24,7 +24,9 @@ if (array_key_exists('profile', $_GET)) {
   $_SESSION['profile'] = false;
 }
 
-if (isset($_SESSION['profile']) && $_SESSION['profile']) {
+if (isset($_SESSION['profile']) && $_SESSION['profile']
+  # Exclude xprof pages from profiling!
+  && strncmp($_SERVER['SCRIPT_NAME'], '/xhprof/', strlen('/xhprof/'))) {
   # Start profiling.
   # Add XHPROF_FLAGS_NO_BUILTINS to not profile builtin functions.
   xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY,
